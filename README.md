@@ -50,6 +50,24 @@ The goal of this project is to identify and correct these issues, resulting in a
 - Create additional useful features
 - Validate the cleaned dataset
 
+## Workflow Diagram
+
+Raw Dataset
+      ▼
+Data Quality Assessment
+      ▼
+Duplicate Removal
+      ▼
+Data Standardization
+      ▼
+NULL Handling
+      ▼
+Feature Engineering
+      ▼
+Validation
+      ▼
+Clean Dataset Ready for Analysis
+
 ---
 
 ## SQL Skills Demonstrated
@@ -101,14 +119,32 @@ The goal of this project is to identify and correct these issues, resulting in a
 | Kaggle | Dataset source |
 | Git & GitHub | Version control and project hosting |
 
+---
+
+## Results
+
+The cleaning process produced a standardized dataset that is ready for exploratory data analysis and visualization.
+
+Key improvements include:
+
+- Duplicate records removed
+- Missing values handled where possible
+- Consistent categorical values
+- Correct data types
+- New analytical feature added
+- Dataset validated for downstream analysis
+
+---
+
 ## Future Improvements
 
-- PostgreSQL version
+- Migrate the project to PostgreSQL
 - Exploratory Data Analysis (EDA)
 - Power BI Dashboard
 - Interactive Business Dashboard
 
 ---
+
 ## Project Environment
 
 - Database: MySQL Server 8.x
@@ -116,6 +152,7 @@ The goal of this project is to identify and correct these issues, resulting in a
 - Operating System: Windows 11
 
 ---
+
 ## Author
 
 **Joel Chukwudi Okolie**
