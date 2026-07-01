@@ -1,4 +1,4 @@
-# 🌍 World Layoffs Data Cleaning Using SQL
+#  World Layoffs Data Cleaning Using SQL
 
 ## Project Overview
 
@@ -50,23 +50,18 @@ The goal of this project is to identify and correct these issues, resulting in a
 - Create additional useful features
 - Validate the cleaned dataset
 
-## Workflow Diagram
+---
 
-Raw Dataset
-      ▼
-Data Quality Assessment
-      ▼
-Duplicate Removal
-      ▼
-Data Standardization
-      ▼
-NULL Handling
-      ▼
-Feature Engineering
-      ▼
-Validation
-      ▼
-Clean Dataset Ready for Analysis
+## Data Import Process
+
+The original dataset was imported into MySQL Server using the **Table Data Import Wizard**.
+
+The workflow was:
+
+1. Create a new schema named `world_layoffs`.
+2. Import the CSV using the MySQL Table Data Import Wizard.
+3. Open the database in Visual Studio Code.
+4. Perform all data cleaning operations using SQL.
 
 ---
 
@@ -85,11 +80,11 @@ Clean Dataset Ready for Analysis
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| 01_database_setup.sql | Database and table creation |
-| 02_data_cleaning.sql | Complete cleaning process |
-| 03_validation_queries.sql | Validation after cleaning |
+| File                     | Description                                                                           |
+| ------------------------ | ------------------------------------------------------------------------------------- |
+| `sql/data_cleaning.sql`  | SQL script containing the complete data cleaning workflow                             |
+| `data/layoffs_raw.csv`   | Original dataset downloaded from Kaggle                                               |
+| `data/layoffs_clean.csv` | Cleaned dataset generated after the data cleaning process                             |
 
 ---
 
@@ -139,9 +134,9 @@ Key improvements include:
 ## Future Improvements
 
 - Migrate the project to PostgreSQL
-- Exploratory Data Analysis (EDA)
-- Power BI Dashboard
-- Interactive Business Dashboard
+- Perform Exploratory Data Analysis (EDA)
+- Develop an interactive Power BI dashboard
+- Automate parts of the data cleaning workflow
 
 ---
 
