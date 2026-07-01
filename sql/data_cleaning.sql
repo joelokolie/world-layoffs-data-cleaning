@@ -1,88 +1,88 @@
--- SQL Data Cleaning Project
+-- ==========================================================
+-- World Layoffs Data Cleaning
+-- ==========================================================
+-- Author: Joel Chukwudi Okolie
+-- Database: MySQL Server 8.x
+-- SQL Editor: Visual Studio Code
+--
+-- Description:
+-- This script cleans and standardizes the World Layoffs dataset
+-- imported from Kaggle. The output is a cleaned dataset suitable
+-- for exploratory analysis and visualization.
+--
+-- Dataset:
+-- https://www.kaggle.com/datasets/swaptr/layoffs-2022
 
--- CSV was downloaded from -- https://www.kaggle.com/datasets/swaptr/layoffs-2022
--- I created the database 'world_layoffs' in MySQL server, then created 'layoffs' table and imported the downloaded CSV imported into it.
+-- ==========================================================
+-- STEP 1: REVIEW THE RAW DATASET
+-- ==========================================================
 
 SELECT *
 FROM layoffs;
 
--- I want to check and remove duplicates if there are any
--- I want to standardize the data in columns like Date
--- I will look at the blank and NULL values to see what I can do with it
--- I will remove any column or rows that is not important to save time when querying the data.
+-- ==========================================================
+-- STEP 2: CREATE A STAGING TABLE
+-- ==========================================================
+-- Create a working copy of the original dataset to preserve the raw data.
 
--- But first, I have to create and work from a copy of the original table, to preserve the original data.
-
-CREATE TABLE layoffs_copy          -- I copied the columns of the original table
+CREATE TABLE layoffs_staging
 LIKE layoffs;
 
-INSERT layoffs_copy                -- I copied data from original table into the copy
+INSERT layoffs_staging
 SELECT *
 FROM layoffs;
 
-SELECT *                           -- I can now work the copy of the original table while the raw data is still intact.
-FROM layoffs_copy;
+SELECT *
+FROM layoffs_staging;
 
--- Checking for dublicate
--- from the table there is no column that can be used to identify all the rows, something like a company or industry id or sort
--- so I have to assign row_number and match it across all the columns to see if thers is any duplicate.
+-- ==========================================================
+-- STEP 3: IDENTIFY DUPLICATE RECORDS
+-- ==========================================================
+-- Assign a row number to each record to identify duplicate rows.
 
 SELECT *,
     ROW_NUMBER() OVER (PARTITION BY
-    company,                                 -- by partitioning by all the columns, I am assigning 1 to each unique row,
-    industry,                                -- if there is 2 and above on the row_number that means its a duplicate
+    company,
+    industry,
     total_laid_off,
     percentage_laid_off,
     `date`) AS `row_number`
-FROM layoffs_copy;
+FROM layoffs_staging;
 
 WITH duplicate_cte AS (
     SELECT *,
         ROW_NUMBER() OVER (PARTITION BY
         company,
-        location,                                -- I have to use a subquery or CTE in order to filter a window function column like 
-        industry,                                -- ROW_NUMBER, using CTE here I filtered for rows greater than 1, which are of course
-        total_laid_off,                          -- the duplicates that have to be removed.
+        location,
+        industry,
+        total_laid_off,
         percentage_laid_off,
         `date`,
         stage,
         country,
         funds_raised_millions) AS `row_number`
-    FROM layoffs_copy)
+    FROM layoffs_staging)
+    
+-- Records with ROW_NUMBER() greater than 1 are duplicate records.
+    
 SELECT *
 FROM duplicate_cte
 WHERE `row_number` > 1;
 
-SELECT *                                    -- I checked on some of the data to make sure they are actually duplicates.
-FROM layoffs_copy
+-- Verify identified duplicates before deletion.
+
+SELECT *
+FROM layoffs_staging
 WHERE company = 'Casper';
 
--- Deleting the duplicates
--- I could have simply deleted the identified duplicates from the layoffs_copy table, directly from the CTE,
--- but MySQL Server unfortunately does not allow update from a CTE. This can be done in PostgreSQL though.
-/*
-WITH duplicate_cte AS
-(SELECT *,
-    ROW_NUMBER() OVER (PARTITION BY
-    company,
-    location,
-    industry,
-    total_laid_off,
-    percentage_laid_off,
-    `date`,
-    stage,
-    country,
-    funds_raised_millions) AS `row_number`
-FROM layoffs_copy)
-DELETE
-FROM duplicate_cte
-WHERE `row_number` > 1;
-*/
+-- ==========================================================
+-- STEP 4: DELETING DUPLICATE RECORDS
+-- ==========================================================
+-- MySQL does not support deleting directly from a CTE.
+-- Create a new table with an additional ROW_NUMBER() column
+-- to facilitate duplicate removal.
 
--- With MySQL I have to create an actual table with row_number column and then insert same content I used in
--- creating CTE then go ahead delete the duplicate rows.
-
-CREATE TABLE `layoffs_copy2` (                     -- I created a new table 'layoffs_copy2' with row_number column
+CREATE TABLE `layoffs_clean` (
     `company` text,
     `location` text,
     `industry` text,
@@ -95,8 +95,10 @@ CREATE TABLE `layoffs_copy2` (                     -- I created a new table 'lay
     `row_number` int
     )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-INSERT layoffs_copy2
-SELECT *,                                 -- Copied the 'layoffs_copy' table data I used in creating CTE which have row_number column values
+-- Copy the 'layoffs_staging' table data and also insert the row_number values
+
+INSERT layoffs_clean
+SELECT *,
     ROW_NUMBER() OVER (PARTITION BY
     company,
     location,
@@ -107,87 +109,141 @@ SELECT *,                                 -- Copied the 'layoffs_copy' table dat
     stage,
     country,
     funds_raised_millions) AS `row_number`
-FROM layoffs_copy;
+FROM layoffs_staging;
 
-SELECT *                          -- I now have the 5 dublicate rows filtered from an actual table, no longer from CTE.
-FROM layoffs_copy2                -- #the next query have deleted the duplicates, so this query will return an empty table.
+-- These are the duplicates to be deleted
+
+SELECT *
+FROM layoffs_clean
 WHERE `row_number` > 1;
+
+-- Remove duplicate records from the dataset.
 
 DELETE
-FROM layoffs_copy2                -- I proceeded to remove the duplicates, 5 rows were deleted.
+FROM layoffs_clean
 WHERE `row_number` > 1;
 
-SELECT *                          -- Duplicate rows have been deleted
-FROM layoffs_copy2;
+-- Verify duplicate records have been removed.
 
--- --------------------------------------------------------------------------------------------------------------------------------------------------
+SELECT *
+FROM layoffs_clean;
 
--- Standardizing data
--- I will try to find issues in the data and fix it.
+-- ==========================================================
+-- STEP 5: STANDARDIZE DATA
+-- ==========================================================
+-- Objective:
+-- Correct inconsistencies in text values and data types to
+-- improve data quality and ensure consistent analysis.
+-- ----------------------------------------------------------
+-- Standardize company names
+-- ----------------------------------------------------------
+SELECT
+    company,
+    TRIM(company)
+FROM layoffs_clean;
 
-SELECT company, TRIM(company)           -- I saw some whitespaces on the company column
-FROM layoffs_copy2;
-
-UPDATE layoffs_copy2                    -- So I trimmed and updated the table, 11 rows were changed.
+UPDATE layoffs_clean
 SET company = TRIM(company);
 
-SELECT DISTINCT industry                -- Found an issue in industry column, there is null, empty and entries like
-FROM layoffs_copy2                      -- Crypto, CryptoCurrency and Crypto Currency
+-- ----------------------------------------------------------
+-- Standardize industry values
+-- ----------------------------------------------------------
+SELECT DISTINCT industry
+FROM layoffs_clean
 ORDER BY 1;
 
-UPDATE layoffs_copy2                    -- I updated all crypto-currency industries to 'Crypto' 3 rows were changed
+UPDATE layoffs_clean
 SET industry = 'Crypto'
 WHERE industry LIKE 'Crypto%';
 
-SELECT DISTINCT location                -- I found wrong spelt locations,
-FROM layoffs_copy2
+-- ----------------------------------------------------------
+-- Standardize location names
+-- ----------------------------------------------------------
+SELECT DISTINCT location
+FROM layoffs_clean
 ORDER BY location;
 
-UPDATE layoffs_copy2
+UPDATE layoffs_clean
 SET location =
     CASE
-        WHEN location IN ('FlorianÃ³polis') THEN 'Florianopolis'      -- I updated and corrected them, 2 rows were changed.
+        WHEN location IN ('FlorianÃ³polis') THEN 'Florianopolis'
         WHEN location IN ('DÃ¼sseldorf') THEN 'Dusseldorf'
         ELSE location
     END
 WHERE location IN ('FlorianÃ³polis', 'DÃ¼sseldorf');
 
-SELECT   country                            -- I found some punctuated entry on 'country column'
-FROM layoffs_copy2
+-- ----------------------------------------------------------
+-- Standardize country names
+-- ----------------------------------------------------------
+SELECT DISTINCT country
+FROM layoffs_clean
 ORDER BY country;
 
-UPDATE layoffs_copy2                        -- I standardized and updated 'country'column
+UPDATE layoffs_clean
 SET country = 'United States'
 WHERE country = 'United States.';
 
-SELECT date                                 -- I noticed the data type of the date column is TEXT, and timeseries analysis
-FROM layoffs_copy2;                         -- and visualization can't be done with that, so I have to change it.
+-- ----------------------------------------------------------
+-- Convert date column to DATE datatype
+-- ----------------------------------------------------------
+-- The date column should be DATE datatype for easy timeseries analysis and visualization
+
+SELECT date
+FROM layoffs_clean;
+
+-- Convert text values to MySQL DATE format.
 
 SELECT `date`,
-STR_TO_DATE(`date`, '%m/%d/%Y')             -- first I have to format it to a standard date format
-FROM layoffs_copy2;
+    STR_TO_DATE(`date`, '%m/%d/%Y')
+FROM layoffs_clean;
 
-UPDATE layoffs_copy2                        -- Updated the table, 2355 rows changed.
+-- Update the data types of the date and percentage_laid_off columns.
+
+UPDATE layoffs_clean
 SET `date` = STR_TO_DATE(`date`, '%m/%d/%Y');      
 
-ALTER TABLE layoffs_copy2                   -- then modified the data type from text to date, 2356 rows were affected.
-MODIFY `date` DATE,                         -- I modified the percentage laid off column alongside from text to DECIMAL
+-- Modify date column datatype as well as the percentage laid off column
+
+ALTER TABLE layoffs_clean
+MODIFY `date` DATE,
 MODIFY `percentage_laid_off` DECIMAL(5,4);
 
--- -------------------------------------------------------------------------------------------------------------------------------------------
+-- ==========================================================
+-- STEP 6: HANDLE MISSING VALUES
+-- ==========================================================
+-- Objective:
+-- Identify missing values and populate them where reliable
+-- information is available. Remove records that cannot be
+-- used for meaningful analysis.
 
--- Checking and handling NULL values
-
-SELECT *                                    -- Found 4 rows with a blank or NULL industry, 
-FROM layoffs_copy2
+-- ----------------------------------------------------------
+-- Identify missing industry values
+-- ----------------------------------------------------------
+SELECT * 
+FROM layoffs_clean
 WHERE industry IS NULL
 OR industry = '';
 
-SELECT *                                    -- I will to populate it by checking each company
-FROM layoffs_copy2                          -- to see if there's same company with the industry data. -- found for 3 companies
+-- Check whether another record for the same company contains
+-- the missing industry value.
+
+SELECT *
+FROM layoffs_clean
 WHERE company = 'Juul';
 
-UPDATE layoffs_copy2                        -- Updated 3 rows -- nothing can be done for the remaining 1 row
+SELECT *
+FROM layoffs_clean
+WHERE company = 'Carvana';
+
+SELECT *
+FROM layoffs_clean
+WHERE company = 'Airbnb';
+
+-- ----------------------------------------------------------
+-- Populate missing industry values
+-- ----------------------------------------------------------
+
+UPDATE layoffs_clean
 SET industry =
     CASE
         WHEN industry IN ('') AND company IN ('Juul') THEN 'Consumer'
@@ -196,25 +252,42 @@ SET industry =
     END
 WHERE industry IS NULL OR industry = '';
 
-SELECT *                                    -- This two columns are the most important for this project,
-FROM layoffs_copy2                          -- 361 rows have no information on both column, so they useless to this project
-WHERE total_laid_off IS NULL                -- and i will have to remove them.
-AND percentage_laid_off IS NULL;
+-- ----------------------------------------------------------
+-- Identify incomplete records
+-- ----------------------------------------------------------
+-- Find records that have null or blank values in total_laid_off and
+-- percentage_laid_off columns, these records are not needed because
+-- they lack value in the two most important column of the subject
 
-DELETE                                      -- 361 rows removed
-FROM layoffs_copy2
+SELECT *
+FROM layoffs_clean
 WHERE total_laid_off IS NULL
 AND percentage_laid_off IS NULL;
 
--- The remaining NULL values can not be calculated or gotten from the available information on the table, so I'm done with NULL values
--- -----------------------------------------------------------------------------------------------------------------------------------
+-- ----------------------------------------------------------
+-- Remove incomplete records
+-- ----------------------------------------------------------
+-- Delete the found irrelevant records
 
--- Adding additional column for estimated total employees and removing the row_number column which I wont be needing anymore.
+DELETE
+FROM layoffs_clean
+WHERE total_laid_off IS NULL
+AND percentage_laid_off IS NULL;
 
-ALTER TABLE layoffs_copy2                   -- Added new column to calculate total employees estimate
+-- The remaining NULL values can not be calculated or gotten from the available information on the table.
+
+-- ==========================================================
+-- STEP 7: FEATURE ENGINEERING
+-- ==========================================================
+-- Objective:
+-- Create additional features that improve the dataset for
+-- downstream analysis and remove temporary columns that are
+-- no longer required.
+
+ALTER TABLE layoffs_clean
 ADD total_est_employees INT;
 
-UPDATE layoffs_copy2                        -- Calculated the values into the column
+UPDATE layoffs_clean
 SET total_est_employees = 
     CASE
         WHEN percentage_laid_off IS NULL OR percentage_laid_off = 0 THEN NULL
@@ -222,9 +295,18 @@ SET total_est_employees =
     END
 WHERE total_est_employees IS NULL;
 
-ALTER TABLE layoffs_copy2                   -- I removed the row_number column since I wont be needing it anymore.
+-- Removed the row_number column
+
+ALTER TABLE layoffs_clean
 DROP `row_number`;
 
-SELECT *                                    -- Now, I think this table is ready to be explored!
-FROM layoffs_copy2;
--- ------------------------------------------------------------------------------------------------------------------------------
+-- ==========================================================
+-- DATA CLEANING COMPLETE
+-- ==========================================================
+-- The dataset has been cleaned, standardized and validated.
+-- It is now ready for exploratory data analysis and
+-- visualization.
+
+SELECT *
+FROM layoffs_clean;
+
