@@ -1,3 +1,7 @@
+![SQL](https://img.shields.io/badge/SQL-MySQL-blue)
+![Database](https://img.shields.io/badge/Database-MySQL-orange)
+![Status](https://img.shields.io/badge/Status-Completed-success)
+
 #  World Layoffs Data Cleaning Using SQL
 
 ## Project Overview
