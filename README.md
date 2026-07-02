@@ -154,4 +154,5 @@ Key improvements include:
 Aspiring Data Analyst
 
 GitHub: https://github.com/joelokolie
+
 LinkedIn: https://www.linkedin.com/in/joel-okolie
