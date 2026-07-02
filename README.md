@@ -133,7 +133,6 @@ Key improvements include:
 
 ## Future Improvements
 
-- Migrate the project to PostgreSQL
 - Perform Exploratory Data Analysis (EDA)
 - Develop an interactive Power BI dashboard
 - Automate parts of the data cleaning workflow
@@ -155,3 +154,4 @@ Key improvements include:
 Aspiring Data Analyst
 
 GitHub: https://github.com/joelokolie
+LinkedIn: https://www.linkedin.com/in/joel-okolie
