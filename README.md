@@ -6,7 +6,7 @@
 
 ## Project Overview
 
-This project demonstrates a complete SQL data cleaning workflow using the **World Layoffs** dataset from Kaggle.
+This project demonstrates SQL data cleaning workflow using the **World Layoffs** dataset from Kaggle.
 
 The objective was to transform raw company layoff data into a clean, standardized dataset suitable for analysis and visualization.
 
