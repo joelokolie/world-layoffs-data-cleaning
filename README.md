@@ -156,3 +156,21 @@ Aspiring Data Analyst
 GitHub: https://github.com/joelokolie
 
 LinkedIn: https://www.linkedin.com/in/joel-okolie
+
+---
+
+## Raw Dataset
+
+![Raw Dataset](images/01_layoffs_raw.png)
+
+---
+
+## Duplicate Detection Query
+
+![Duplicate Detection Query](images/02_duplicate_query.png)
+
+---
+
+## Cleaned Dataset
+
+![Cleaned Dataset](images/03_layoffs_clean.png)
