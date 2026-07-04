@@ -116,7 +116,7 @@ The workflow was:
 | MySQL Server | Database management |
 | SQL | Data cleaning and transformation |
 | Kaggle | Dataset source |
-| Git & GitHub | Version control and project hosting |
+| Git & GitHub | Project documentation and hosting |
 
 ---
 
@@ -145,7 +145,7 @@ Key improvements include:
 
 ## Project Environment
 
-- Database: MySQL Server 8.x
+- Database: MySQL Server 8.0
 - SQL Editor: Visual Studio Code
 - Operating System: Windows 11
 
