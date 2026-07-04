@@ -2,7 +2,7 @@
 -- World Layoffs Data Cleaning
 -- ==========================================================
 -- Author: Joel Chukwudi Okolie
--- Database: MySQL Server 8.x
+-- Database: MySQL Server 8.0
 -- SQL Editor: Visual Studio Code
 --
 -- Description:
