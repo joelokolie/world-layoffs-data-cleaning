@@ -274,6 +274,10 @@ FROM layoffs_clean
 WHERE total_laid_off IS NULL
 AND percentage_laid_off IS NULL;
 
+DELETE
+FROM layoffs_clean
+WHERE date IS NULL;
+
 -- The remaining NULL values can not be calculated or gotten from the available information on the table.
 
 -- ==========================================================
