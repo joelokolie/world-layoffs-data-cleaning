@@ -1,4 +1,5 @@
 #  World Layoffs Data Cleaning
+
 ![SQL](https://img.shields.io/badge/SQL-MySQL-blue)
 ![Database](https://img.shields.io/badge/Database-MySQL-orange)
 ![Status](https://img.shields.io/badge/Status-Completed-success)
@@ -26,6 +27,9 @@ The dataset contains information such as:
 - Date
 - Company Stage
 - Funds Raised
+
+**Raw Dataset**
+![Raw Dataset](Images/01_layoffs_raw.png)
 
 ---
 
@@ -105,6 +109,9 @@ The workflow was:
 
 ✔ Created an estimated employee count column
 
+**Duplicate Detection Query**
+![Duplicate Detection Query](Images/02_duplicate_query.png)
+
 ---
 
 ## Tools Used
@@ -131,6 +138,9 @@ Key improvements include:
 - Correct data types
 - New analytical feature added
 - Dataset validated for downstream analysis
+
+**Cleaned Dataset**
+![Cleaned Dataset](Images/03_layoffs_clean.png)
 
 ---
 
@@ -162,18 +172,10 @@ LinkedIn: https://www.linkedin.com/in/joel-okolie
 
 ---
 
-## Raw Dataset
+## Next Project
 
-![Raw Dataset](Images/01_layoffs_raw.png)
+The cleaned dataset produced in this project was used for further analysis in:
 
----
+- **[Business Insights from the World Layoffs Dataset](https://github.com/joelokolie/world-layoffs-analysis)**
 
-## Duplicate Detection Query
 
-![Duplicate Detection Query](Images/02_duplicate_query.png)
-
----
-
-## Cleaned Dataset
-
-![Cleaned Dataset](Images/03_layoffs_clean.png)
